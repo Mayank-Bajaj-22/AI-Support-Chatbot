@@ -1,36 +1,201 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Scalekit Authentication Setup in Next.js
 
-## Getting Started
+This guide explains how to integrate **Scalekit** authentication in a **Next.js** application.
 
-First, run the development server:
+Scalekit provides authentication infrastructure for modern applications, including **SSO, identity federation, and secure session management**.
+
+---
+
+# 1. Install Scalekit SDK
+
+Run the following command inside your project:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install @scalekit-sdk/node
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+# 2. Configure Environment Variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Add the following variables to your `.env` file.
 
-## Learn More
+```env
+SCALEKIT_ENVIRONMENT_URL=<your-environment-url>
+SCALEKIT_CLIENT_ID=<your-client-id>
+SCALEKIT_CLIENT_SECRET=<your-client-secret>
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
 
-To learn more about Next.js, take a look at the following resources:
+These credentials are provided when you create an application in the Scalekit dashboard.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# 3. Initialize Scalekit Client
 
-## Deploy on Vercel
+Create a file:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+lib/scalekit.ts
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```ts
+import { Scalekit } from "@scalekit-sdk/node";
+
+// Initialize the Scalekit client with your credentials
+export const scalekit = new Scalekit(
+  process.env.SCALEKIT_ENVIRONMENT_URL!,
+  process.env.SCALEKIT_CLIENT_ID!,
+  process.env.SCALEKIT_CLIENT_SECRET!
+);
+```
+
+This file initializes the Scalekit SDK so it can be reused across your API routes.
+
+---
+
+# 4. Create Login Route
+
+Create the following API route:
+
+```
+app/api/auth/login/route.ts
+```
+
+```ts
+import { scalekit } from "@/lib/scalekit";
+import { NextRequest, NextResponse } from "next/server";
+
+export async function GET(req: NextRequest) {
+  const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback`;
+
+  const url = scalekit.getAuthorizationUrl(redirectUri);
+
+  return NextResponse.redirect(url);
+}
+```
+
+### What happens here
+
+1. User clicks **Login**
+2. Request goes to `/api/auth/login`
+3. User is redirected to Scalekit authentication page
+
+---
+
+# 5. Create Callback Route
+
+Create the following API route:
+
+```
+app/api/auth/callback/route.ts
+```
+
+```ts
+import { scalekit } from "@/lib/scalekit";
+import { NextRequest, NextResponse } from "next/server";
+
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const code = searchParams.get("code");
+
+  const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback`;
+
+  if (!code) {
+    return NextResponse.json(
+      { message: "Authorization code not found" },
+      { status: 400 }
+    );
+  }
+
+  const session = await scalekit.authenticateWithCode(code, redirectUri);
+
+  console.log(session);
+
+  const response = NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}`);
+
+  response.cookies.set("access_token", session.accessToken, {
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000,
+    secure: false,
+    path: "/",
+  });
+
+  return response;
+}
+```
+
+### What happens here
+
+1. Scalekit redirects the user to this route after authentication.
+2. The `code` query parameter is extracted from the URL.
+3. The authorization code is exchanged for a **session token**.
+4. The token is stored securely in an **HTTP-only cookie**.
+5. The user is redirected back to the application.
+
+---
+
+# 6. Add Login Button
+
+Add a login handler in your frontend.
+
+```javascript
+const handleLogin = () => {
+  window.location.href = "/api/auth/login";
+};
+```
+
+Use it in a button:
+
+```jsx
+<button onClick={handleLogin}>Login</button>
+```
+
+---
+
+# 7. Authentication Flow
+
+The complete authentication flow works like this:
+
+```
+User clicks Login
+        ↓
+Next.js /api/auth/login
+        ↓
+Redirect to Scalekit
+        ↓
+User authenticates
+        ↓
+Scalekit redirects to /api/auth/callback
+        ↓
+Authorization code exchanged for session
+        ↓
+Access token stored in cookie
+        ↓
+User logged in
+```
+
+---
+
+# 8. Project Structure
+
+```
+project-root
+│
+├── app
+│   └── api
+│       └── auth
+│           ├── login
+│           │   └── route.ts
+│           └── callback
+│               └── route.ts
+│
+├── lib
+│   └── scalekit.ts
+│
+├── .env
+└── package.json
+```
+
+---
+
