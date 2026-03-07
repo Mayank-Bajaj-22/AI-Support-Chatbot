@@ -10,19 +10,17 @@ interface ISetting {
 const settingSchema = new mongoose.Schema<ISetting>({
     ownerId: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     businessName: {
         type: String,
-        required: true
     },
     supportEmail: {
         type: String,
-        required: true
     },
     knowledge: {
         type: String,
-        required: true
     }
 }, { timestamps: true })
 
