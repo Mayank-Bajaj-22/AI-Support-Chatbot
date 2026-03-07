@@ -1,9 +1,13 @@
 "use client"
 
+import axios from "axios"
 import { AnimatePresence, motion } from "motion/react"
+import { useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 
 function HomeClient({ email }: { email: string}) {
+
+    const router = useRouter()
 
     const handleLogin = () => {
         window.location.href="/api/auth/login"
@@ -42,6 +46,15 @@ function HomeClient({ email }: { email: string}) {
         }
     ]
 
+    const handleLogout = async () => {
+        try {
+            const result = await axios("/api/auth/logout")
+            window.location.href="/"
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     return (
         <div className='min-h-screen bg-linear-to-br from-white to-zinc-50 text-zinc-900 overflow-x-hidden'>
             <motion.div
@@ -68,13 +81,13 @@ function HomeClient({ email }: { email: string}) {
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, y: -6 }}
                                     className="absolute right-0 mt-4 w-44 bg-white rounded-xl border border-zinc-200 overflow-hidden">
-                                        <button className="w-full text-left px-4 py-3 text-sm hover:bg-zinc-100">
+                                        <button className="w-full text-left px-4 py-3 text-sm hover:bg-zinc-100" onClick={() => router.push("/dashboard")}>
                                             Dashboard
                                         </button>
 
                                         <hr className="text-zinc-200" />
 
-                                        <button className="w-full text-left px-4 py-3 text-sm hover:bg-zinc-100 text-red-600">
+                                        <button className="w-full text-left px-4 py-3 text-sm hover:bg-zinc-100 text-red-600" onClick={handleLogout}>
                                             Logout
                                         </button>
                                     </motion.div>
