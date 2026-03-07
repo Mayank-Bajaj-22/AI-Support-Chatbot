@@ -123,7 +123,7 @@ function HomeClient({ email }: { email: string}) {
                         <div className="mt-10 flex gap-4">
                             {
                                 email ? 
-                                <button className="px-7 py-3 rounded-xl text-white bg-black font-medium hover:bg-zinc-800 disabled:opacity-60 transition md:py-5">
+                                <button className="px-7 py-3 rounded-xl text-white bg-black font-medium hover:bg-zinc-800 disabled:opacity-60 transition md:py-5" onClick={() => router.push("/dashboard")}>
                                     Get to Dashboard
                                 </button> :
                                 <button className="px-7 py-3 rounded-xl text-white bg-black font-medium hover:bg-zinc-800 disabled:opacity-60 transition md:py-5" onClick={handleLogin}>
