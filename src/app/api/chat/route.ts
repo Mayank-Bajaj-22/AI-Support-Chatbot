@@ -43,12 +43,11 @@ Use ONLY the information provided below to answer the customer's question.
 You may rephrase, summarize, or interpret the information if needed.
 
 IMPORTANT RULES:
-- Do NOT use bullet points (**, *, -, •).
-- Do use bullet points (-, •).
-- Do NOT use markdown formatting.
-- If listing items, put each item on a new line.
-- Do NOT write in paragraph form.
-- Keep the answer clean and simple.
+- Use bullet points starting with "•".
+- Put each point on a new line.
+- Do NOT use markdown formatting like **bold** or headings.
+- Do NOT write long paragraphs.
+- Keep answers short and clean.
 
 Do NOT invent new policies, prices, or promises.
 
