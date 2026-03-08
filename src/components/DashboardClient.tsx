@@ -35,8 +35,9 @@ export default function DashboardClient({ ownerId } : { ownerId: string }) {
             const handleGetDetails = async () => {
                 try {
                     const result = await axios.post("/api/settings/get", {
-                        ownerId
+                        ownerId: ownerId
                     })
+                    console.log(result.data)
                     setBusinessName(result.data.businessName)
                     setSupportEmail(result.data.supportEmail)
                     setKnowledge(result.data.knowledge)
@@ -47,7 +48,7 @@ export default function DashboardClient({ ownerId } : { ownerId: string }) {
             }
             handleGetDetails()
         }
-    }, [])
+    }, [ownerId])
 
     return (
         <div className="min-h-screen bg-zinc-50 text-zinc-900">

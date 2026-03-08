@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
     try {
         const { ownerId } = await req.json()
 
-        if (ownerId) {
+        if (!ownerId) {
             return NextResponse.json(
                 {
                     message: "owner id is required"

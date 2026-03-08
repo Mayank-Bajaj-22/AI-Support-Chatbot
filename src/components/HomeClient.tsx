@@ -7,9 +7,12 @@ import { useEffect, useRef, useState } from "react"
 
 function HomeClient({ email }: { email: string}) {
 
+    const [loading, setLoading] = useState(false)
+
     const router = useRouter()
 
     const handleLogin = () => {
+        setLoading(true)
         window.location.href="/api/auth/login"
     }
 
@@ -94,8 +97,8 @@ function HomeClient({ email }: { email: string}) {
                                 }
                             </AnimatePresence>
                         </div> 
-                        : <button className="px-5 py-2 rounded-full bg-black text-white text-sm font-medium hover:bg-zinc-800 transition disabled:opacity-60 flex items-center gap-2" onClick={handleLogin}>
-                            Login
+                        : <button className="px-5 py-2 rounded-full bg-black text-white text-sm font-medium hover:bg-zinc-800 transition disabled:opacity-60 flex items-center gap-2" onClick={handleLogin} disabled={loading}>
+                            { loading ? "Loading..." : "Login" }
                         </button>
                     }
                 </div>
