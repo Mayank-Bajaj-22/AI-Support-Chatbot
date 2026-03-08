@@ -1,6 +1,14 @@
-export default function Dashboard() {
+import DashboardClient from "@/components/DashboardClient"
+import { getSession } from "@/lib/getSession"
+
+export default async function Dashboard() {
+
+    const session = await getSession()
+
     return (
-        <div>Dashboard</div>
+        <>
+            <DashboardClient ownerId={session?.user?.id!} />
+        </>
     )
 }
 
