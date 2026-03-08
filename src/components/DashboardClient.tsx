@@ -61,7 +61,7 @@ export default function DashboardClient({ ownerId } : { ownerId: string }) {
                         Support.<span className="text-zinc-400">ai</span>
                     </div>
 
-                    <button className="px-4 py-2 rounded-lg text-sm border border-zinc-300 hover:bg-zinc-100 transition">
+                    <button className="px-4 py-2 rounded-lg text-sm border border-zinc-300 hover:bg-zinc-100 transition" onClick={()=>router.push("/embed")}>
                         Embed Chatbot
                     </button>
                 </div>
